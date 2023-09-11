@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+
+# Redis
+    redis:
+        image: redis:3.2.8
+        hostname: redis
+        ports:
+          - "6379:6379"
+
+# RabbitMQ
+    rabbitmq:
+        hostname: rabbitmq
+        image: rabbitmq:3-management
+        environment:
+            - RABBITMQ_DEFAULT_USER=guest
+            - RABBITMQ_DEFAULT_PASS=guest
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+
+# Celery worker
+    worker:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: ./run_celery.sh
+        volumes:
+            - .:/code:Z
+        links:
+            # - db
+            - rabbitmq
+            - redis
+        depends_on:
+            - rabbitmq
+            
+# Celery worker
+    # beat:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     command: ./run_celery_beat.sh
+    #     volumes:
+    #         - .:/code:Z
+    #     links:
+    #         - worker
+    #         # - db
+    #         - rabbitmq
+    #         - redis
+    #     depends_on:
+    #         - worker
+    #         - rabbitmq
+
+
+  # Django
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        # hostname: localhost
+        command: ./run_web.sh
+        volumes:
+            - .:/code:Z
+        ports:
+            - "8000:8000"
+        links:
+            # - db
+            - rabbitmq
+            - redis
+        # depends_on:
+        #     - db
+
+
