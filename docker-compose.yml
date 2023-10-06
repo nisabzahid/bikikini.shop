@@ -28,6 +28,8 @@ services:
         command: ./run_celery.sh
         volumes:
             - .:/code:Z
+        env_file:
+            - project/myshop/.env.dev
         links:
             # - db
             - rabbitmq
@@ -58,12 +60,13 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        # hostname: localhost
         command: ./run_web.sh
         volumes:
             - .:/code:Z
         ports:
             - "8000:8000"
+        env_file:
+            - project/myshop/.env.dev
         links:
             # - db
             - rabbitmq
