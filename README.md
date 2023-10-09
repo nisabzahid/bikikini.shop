@@ -18,10 +18,10 @@ Project description
   3. add github actions
   4. add sonarqube
 
-![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-26-40.png?raw=true)
-![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-26-59.png?raw=true)
+![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-35-24.png?raw=true)
+![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-35-37.png?raw=true)
 
-![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-27-21.png?raw=true)
-![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-27-29.png?raw=true)
-![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-27-40.png?raw=true)
+![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-35-47.png?raw=true)
+![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-35-58.png?raw=true)
+![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-36-16.png?raw=true)
 
