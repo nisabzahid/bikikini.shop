@@ -17,3 +17,5 @@ Project description
   2. add cicd with jenkins
   3. add github actions
   4. add sonarqube
+
+![](https://github.com/nisabzahid/bikikini.shop/blob/main/screenshots/Screenshot%20from%202023-10-09%2015-26-40.png)
