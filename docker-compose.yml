@@ -36,23 +36,6 @@ services:
             - redis
         depends_on:
             - rabbitmq
-            
-# Celery worker
-    # beat:
-    #     build:
-    #         context: .
-    #         dockerfile: Dockerfile
-    #     command: ./run_celery_beat.sh
-    #     volumes:
-    #         - .:/code:Z
-    #     links:
-    #         - worker
-    #         # - db
-    #         - rabbitmq
-    #         - redis
-    #     depends_on:
-    #         - worker
-    #         - rabbitmq
 
 
   # Django
@@ -74,4 +57,15 @@ services:
         # depends_on:
         #     - db
 
+    db:
+        image: postgres:15
+        volumes:
+        - postgres_data:/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=postgres
+
+volumes:
+  postgres_data:
 
