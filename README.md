@@ -1,5 +1,4 @@
 # bikikini.shop
-
 an online shop
 
 user can list see list of product and buy and pay with the stipe payment network
