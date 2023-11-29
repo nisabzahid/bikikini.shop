@@ -13,9 +13,11 @@ services:
     rabbitmq:
         hostname: rabbitmq
         image: rabbitmq:3-management
-        environment:
-            - RABBITMQ_DEFAULT_USER=guest
-            - RABBITMQ_DEFAULT_PASS=guest
+        env_file:
+            - .env.dev
+        # environment:
+            # - RABBITMQ_DEFAULT_USER=guest
+            # - RABBITMQ_DEFAULT_PASSWORD=guest
         ports:
             - "5672:5672"
             - "15672:15672"
@@ -29,7 +31,7 @@ services:
         volumes:
             - .:/code:Z
         env_file:
-            - project/myshop/.env.dev
+            - .env.dev
         links:
             # - db
             - rabbitmq
@@ -49,7 +51,7 @@ services:
         ports:
             - "8000:8000"
         env_file:
-            - project/myshop/.env.dev
+            - .env.dev
         links:
             # - db
             - rabbitmq
