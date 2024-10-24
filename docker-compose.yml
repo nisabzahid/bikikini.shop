@@ -15,9 +15,6 @@ services:
         image: rabbitmq:3-management
         env_file:
             - .env.dev
-        # environment:
-            # - RABBITMQ_DEFAULT_USER=guest
-            # - RABBITMQ_DEFAULT_PASSWORD=guest
         ports:
             - "5672:5672"
             - "15672:15672"
@@ -49,7 +46,7 @@ services:
         volumes:
             - .:/code:Z
         ports:
-            - "8000:8000"
+            - "8001:8000"
         env_file:
             - .env.dev
         links:
@@ -58,7 +55,23 @@ services:
             - redis
         # depends_on:
         #     - db
-
+    web2:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: ./run_web.sh
+        volumes:
+            - .:/code:Z
+        ports:
+            - "8002:8000"
+        env_file:
+            - .env.dev
+        links:
+            # - db
+            - rabbitmq
+            - redis
+        # depends_on:
+        #     - db
     db:
         image: postgres:15
         volumes:
@@ -67,6 +80,17 @@ services:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_DB=postgres
+
+     # Nginx Load Balancer
+    nginx:
+        image: nginx:latest
+        ports:
+        - "80:80"
+        volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf
+        depends_on:
+        - web2
+        - web
 
 volumes:
   postgres_data:

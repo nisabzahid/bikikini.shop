@@ -2,8 +2,18 @@ from django.shortcuts import render, get_object_or_404
 from cart.forms import CartAddProductForm
 from .models import Category, Product
 from .recommender import Recommender
+from django.http import JsonResponse
+import socket
 
 
+def test_host(request):
+    headers = {key: value for key, value in request.headers.items()}  # Get all headers
+    data = {
+        "host": request.get_host(),  # Should include the port
+        "hostdata": "host",
+        "headers": headers,           # Include all headers for debugging
+    }
+    return JsonResponse(data)
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()

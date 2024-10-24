@@ -1,4 +1,4 @@
-#!/bin/sh
+# !/bin/sh
 
 # wait for RabbitMQ server to start
 sleep 5
