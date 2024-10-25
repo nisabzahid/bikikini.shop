@@ -9,3 +9,8 @@ WeasyPrint==56.1
 redis==4.3.4
 psycopg2-binary==2.9.6
 django-constance[redis]
+flake8
+pre-commit
+black==23.7.0
+isort==5.12.0
+

@@ -3,6 +3,7 @@
 # wait for PSQL server to start
 sleep 10
 
+su -m myuser -c "flake8 && black . && isort -y"
 su -m myuser -c "python project/manage.py makemigrations"
 su -m myuser -c "python project/manage.py migrate"
 su -m root -c "python project/manage.py collectstatic --no-input"

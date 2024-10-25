@@ -10,6 +10,7 @@ Project description
     - docker 
     - django
     - celery
+    - celery-beat for scheduled task 
     - redis
   next tasks to do
   1. host the project to aws
