@@ -4,20 +4,47 @@ services:
 
 # Redis
     redis:
-        image: redis:3.2.8
+        image: redis:7-alpine
         hostname: redis
         ports:
           - "6379:6379"
+        volumes:
+          - redis_data:/data
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 5s
+          timeout: 3s
+          retries: 3
+        deploy:
+          resources:
+            limits:
+              cpus: '0.50'
+              memory: 256M
 
 # RabbitMQ
     rabbitmq:
         hostname: rabbitmq
-        image: rabbitmq:3-management
+        image: rabbitmq:3-management-alpine
         env_file:
             - .env.dev
+        environment:
+            - RABBITMQ_DEFAULT_USER_FILE=/run/secrets/rabbitmq_user
+            - RABBITMQ_DEFAULT_PASS_FILE=/run/secrets/rabbitmq_pass
         ports:
             - "5672:5672"
             - "15672:15672"
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        healthcheck:
+          test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+          interval: 10s
+          timeout: 5s
+          retries: 3
+        deploy:
+          resources:
+            limits:
+              cpus: '0.75'
+              memory: 512M
 
 # Celery worker
     worker:
@@ -29,15 +56,18 @@ services:
             - .:/code:Z
         env_file:
             - .env.dev
-        links:
-            # - db
-            - rabbitmq
-            - redis
         depends_on:
-            - rabbitmq
+            rabbitmq:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        deploy:
+          resources:
+            limits:
+              cpus: '0.75'
+              memory: 512M
 
-
-  # Django
+# Django
     web:
         build:
             context: .
@@ -66,12 +96,22 @@ services:
             - "8002:8000"
         env_file:
             - .env.dev
-        links:
-            # - db
-            - rabbitmq
-            - redis
-        # depends_on:
-        #     - db
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        deploy:
+          resources:
+            limits:
+              cpus: '1.00'
+              memory: 1G
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+
     db:
         image: postgres:15
         volumes:
@@ -93,5 +133,12 @@ services:
         - web
 
 volumes:
+  redis_data:
+  rabbitmq_data:
   postgres_data:
 
+secrets:
+  rabbitmq_user:
+    file: ./secrets/rabbitmq_user.txt
+  rabbitmq_pass:
+    file: ./secrets/rabbitmq_pass.txt

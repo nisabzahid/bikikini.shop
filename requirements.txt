@@ -6,7 +6,7 @@ flower==1.2.0
 celery==5.3.4
 stripe==4.0.2
 WeasyPrint==56.1
-redis==4.3.4
+redis
 psycopg2-binary==2.9.6
 django-constance[redis]
 flake8
