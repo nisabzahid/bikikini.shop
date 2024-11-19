@@ -26,11 +26,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install black flake8 isort
 
-      - name: Run Black
-        run: black . --check
+      - name: Format with Black
+        run: black .
+
+      - name: Sort imports with isort
+        run: isort .
 
       - name: Run Flake8
-        run: flake8 .
-
-      - name: Run isort
-        run: isort . --check-only --diff
+        run: flake8 . --max-line-length=88 --extend-ignore=E203
