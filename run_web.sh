@@ -1,35 +1,54 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
-# Wait for database to be ready
-while ! nc -z db 5432; do
-  echo "Waiting for database..."
-  sleep 1
-done
+# Ensure proper ownership of the project directory
+project_dir="."  # Replace with actual project path
+chown -R "$APP_USER:$APP_USER" "$project_dir"
 
-# Run as non-root user
-APP_USER=myuser
+# # Run code quality checks
+# flake8
+# black .
+# isort -y
 
 # Apply database migrations
-su -m $APP_USER -c "python project/manage.py makemigrations"
-su -m $APP_USER -c "python project/manage.py migrate"
+python project/manage.py makemigrations
+python project/manage.py migrate
 
-# Load initial data if needed
-if [ "$DJANGO_ENV" = "development" ]; then
-    su -m $APP_USER -c "python project/manage.py loaddata data.json"
+# Collect static files
+python project/manage.py collectstatic --no-input
+
+# # Load initial data if needed
+# if [ "$DJANGO_ENV" = "development" ]; then
+#     if [ -f project/data.json ]; then
+#         # Create fixtures directory if it doesn't exist
+#         mkdir -p project/myshop/fixtures
+#         # Copy data.json to fixtures directory
+#         cp project/data.json project/myshop/fixtures/
+#         python project/manage.py loaddata data
+#     else
+#         echo "No data.json fixture found, skipping fixture loading"
+#     fi
+# fi
+
+# Create health check endpoint if it doesn't exist
+if [ ! -f project/myshop/health/views.py ]; then
+    mkdir -p project/myshop/health
+    cat > project/myshop/health/views.py << EOL
+from django.http import HttpResponse
+
+def health_check(request):
+    return HttpResponse("OK")
+EOL
+    # Create __init__.py to make it a proper Python package
+    touch project/myshop/health/__init__.py
+    
+    # Ensure proper permissions
+    chown -R "$APP_USER:$APP_USER" project/myshop/health/
 fi
 
 # Start server based on environment
 if [ "$DJANGO_ENV" = "production" ]; then
-    su -m $APP_USER -c "gunicorn --workers=4 --bind=0.0.0.0:8000 project.wsgi:application"
+    gunicorn --workers=4 --bind=0.0.0.0:8000 project.myshop.wsgi:application
 else
-    su -m $APP_USER -c "python project/manage.py runserver 0.0.0.0:8000"
+    python project/manage.py runserver 0.0.0.0:8000
 fi
-# wait for PSQL server to start
-sleep 10
-
-su -m myuser -c "flake8 && black . && isort -y"
-su -m myuser -c "python project/manage.py makemigrations"
-su -m myuser -c "python project/manage.py migrate"
-su -m root -c "python project/manage.py collectstatic --no-input"
-su -m root -c "python project/manage.py loaddata data.json"
-su -m root -c "python project/manage.py runserver 0.0.0.0:8000"

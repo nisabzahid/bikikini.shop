@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from .health.views import health_check
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -24,6 +25,7 @@ urlpatterns = [
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
     path("coupons/", include("coupons.urls", namespace="coupons")),
+    path("health/", health_check, name='health_check'),
     path("", include("shop.urls", namespace="shop")),
 ]
 

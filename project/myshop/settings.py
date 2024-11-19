@@ -1,16 +1,45 @@
 import os
+import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 from pathlib import Path
+
+# Initialize environ
+env = environ.Env(
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', '0.0.0.0','*']),
+    DATABASE_URL=(str, 'sqlite:///db.sqlite3'),
+    SECRET_KEY=(str, 'dlkfjhsadlf'),
+    STRIPE_PUBLISHABLE_KEY=(str, ''),
+    STRIPE_SECRET_KEY=(str, ''),
+    STRIPE_API_VERSION=(str, '2022-08-01'),
+    STRIPE_WEBHOOK_SECRET=(str, ''),
+    SENTRY_DSN=(str, ''),
+    REDIS_HOST=(str, 'redis'),
+    REDIS_PORT=(int, 6379),
+    REDIS_DB=(int, 1),
+    REDIS_URL=(str, 'redis://redis:6379/1'),
+    EMAIL_HOST=(str, 'localhost'),
+    EMAIL_PORT=(int, 25),
+    EMAIL_HOST_USER=(str, ''),
+    EMAIL_HOST_PASSWORD=(str, ''),
+    EMAIL_USE_TLS=(bool, False),
+)
+
+# Read .env file
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", default="dlkfjhsadlf")
+SECRET_KEY = env('SECRET_KEY')
 
-DEBUG = bool(os.environ.get("DEBUG", default=1))
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", default="*").split(" ")
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -30,6 +59,9 @@ INSTALLED_APPS = [
     # 'constance',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -39,6 +71,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 ROOT_URLCONF = "myshop.urls"
 
@@ -62,25 +97,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "myshop.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
+# Database configuration
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
-    }
+    'default': env.db(),
 }
 
 
@@ -133,36 +152,100 @@ MEDIA_ROOT = BASE_DIR / "media"
 CART_SESSION_ID = "cart"
 
 
+# Email configuration
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-
-# Stripe settings
-STRIPE_PUBLISHABLE_KEY = "pk_test_51NmCeZFxx6p8YbSWboXfjKPfjiPLRQgyxDYuzfIXQ3z7oxopLDbg2FJpMnuvOStod3IY7imphbWJpkvGBezrnyQ0006ONXuy8e"  # Publishable key
-STRIPE_SECRET_KEY = "sk_test_51NmCeZFxx6p8YbSWXubKj2Zp7k8smGPHCyzGzFoobllEFXN0NaTkP5R3tdV91xLfzeNDaJHy1Oslh6aobFArsKKn001HNvYeGE"  # Secret key
-STRIPE_API_VERSION = "2022-08-01"
-STRIPE_WEBHOOK_SECRET = ""
-
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+EMAIL_PORT = env('EMAIL_PORT', default=25)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=False)
+DEFAULT_FROM_EMAIL = 'admin@myshop.com'
 
 # Redis settings
-REDIS_HOST = "redis"
-REDIS_PORT = 6379
-REDIS_DB = 1
+REDIS_HOST = env('REDIS_HOST', default='redis')
+REDIS_PORT = env('REDIS_PORT', default=6379)
+REDIS_DB = env('REDIS_DB', default=1)
+REDIS_URL = env('REDIS_URL', default=f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
 
+# Celery Configuration
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
 
-RABBITMQ = {
-    "PROTOCOL": "amqp",  # in prod change with "amqps"
-    "HOST": os.getenv("RABBITMQ_HOST", "rabbitmq"),
-    "PORT": os.getenv("RABBITMQ_PORT", 5672),
-    "USER": os.getenv("RABBITMQ_USER", "guest"),
-    "PASSWORD": os.getenv("RABBITMQ_PASSWORD", "guest"),
+# Cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
 }
 
-CELERY_BROKER_URL = f"{RABBITMQ['PROTOCOL']}://{RABBITMQ['USER']}:{RABBITMQ['PASSWORD']}@{RABBITMQ['HOST']}:{RABBITMQ['PORT']}"
+# Session configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
-CONSTANCE_CONFIG = {
-    "THE_ANSWER": (
-        42,
-        "Answer to the Ultimate Question of Life, " "The Universe, and Everything",
-    ),
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Performance optimizations
+CONN_MAX_AGE = 60  # Persistent database connections
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# Stripe settings
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_API_VERSION = env('STRIPE_API_VERSION', default='2022-08-01')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'django.log',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+    },
 }
+
+# Rate limiting
+RATELIMIT_ENABLE = True
+RATELIMIT_USE_CACHE = 'default'
+
+# Sentry configuration
+if not DEBUG:
+    sentry_sdk.init(
+        dsn=env('SENTRY_DSN', default=''),
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        send_default_pii=True
+    )
+
+# Debug toolbar configuration
+if DEBUG:
+    INTERNAL_IPS = ['127.0.0.1']

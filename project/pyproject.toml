@@ -1,0 +1,42 @@
+[tool.black]
+line-length = 79
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+^/lib/
+^/build/
+^/dist/
+^/\.eggs/
+^/\.git/
+^/\.hg/
+^/\.mypy_cache/
+^/\.tox/
+^/\.venv/
+^/venv/
+^/env/
+.*\.egg-info/
+.*/migrations/.*
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 79
+skip = [
+    "lib",
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    "venv",
+    ".venv",
+    "env",
+    "migrations"
+]
+skip_glob = [
+    "lib/*",
+    "**/migrations/*",
+    ".env*"
+]
