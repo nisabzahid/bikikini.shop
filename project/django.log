@@ -266,3 +266,5 @@ Bad Request: /
 /code/project/myshop/settings.py changed, reloading.
 Watching for file changes with StatReloader
 Watching for file changes with StatReloader
+/code/project/myshop/urls.py changed, reloading.
+Watching for file changes with StatReloader
