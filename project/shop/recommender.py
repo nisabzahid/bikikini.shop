@@ -1,12 +1,30 @@
 import redis
 from django.conf import settings
+from urllib.parse import urlparse
 
 from .models import Product
 
 # connect to redis
-r = redis.Redis(
-    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
-)
+redis_url = urlparse(settings.REDIS_URL)
+redis_options = {
+    'host': redis_url.hostname,
+    'port': redis_url.port,
+    'db': int(redis_url.path.lstrip('/') or 0),
+    'decode_responses': True
+}
+
+# Add password if present in URL
+if redis_url.password:
+    redis_options['password'] = redis_url.password
+
+# Add SSL if configured
+try:
+    if getattr(settings, 'REDIS_SSL', False):
+        redis_options['ssl'] = True
+except AttributeError:
+    pass
+
+r = redis.Redis(**redis_options)
 
 
 class Recommender:

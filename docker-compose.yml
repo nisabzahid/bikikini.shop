@@ -58,9 +58,6 @@ services:
         env_file:
             - .env.dev
         environment:
-            - REDIS_HOST=redis
-            - REDIS_PORT=6379
-            - REDIS_DB=1
             - REDIS_URL=redis://redis:6379/1
             - DJANGO_SETTINGS_MODULE=myshop.settings
             - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
@@ -140,12 +137,25 @@ services:
 
     db:
         image: postgres:15
+        hostname: db
         volumes:
-        - postgres_data:/var/lib/postgresql/data/
+            - postgres_data:/var/lib/postgresql/data/
         environment:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_DB=postgres
+        networks:
+            - app_network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        deploy:
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 1G
 
      # Nginx Load Balancer
     # nginx:
