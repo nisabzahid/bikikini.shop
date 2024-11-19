@@ -268,3 +268,7 @@ Watching for file changes with StatReloader
 Watching for file changes with StatReloader
 /code/project/myshop/urls.py changed, reloading.
 Watching for file changes with StatReloader
+/code/project/myshop/urls.py changed, reloading.
+Watching for file changes with StatReloader
+/code/project/myshop/celery_helper.py changed, reloading.
+Watching for file changes with StatReloader
