@@ -1,28 +1,29 @@
 import os
+from pathlib import Path
+
 import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-from pathlib import Path
 
 # Initialize environ
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', '0.0.0.0','*']),
-    DATABASE_URL=(str, 'sqlite:///db.sqlite3'),
-    SECRET_KEY=(str, 'dlkfjhsadlf'),
-    STRIPE_PUBLISHABLE_KEY=(str, ''),
-    STRIPE_SECRET_KEY=(str, ''),
-    STRIPE_API_VERSION=(str, '2022-08-01'),
-    STRIPE_WEBHOOK_SECRET=(str, ''),
-    SENTRY_DSN=(str, ''),
-    REDIS_HOST=(str, 'redis'),
+    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1", "0.0.0.0", "*"]),
+    DATABASE_URL=(str, "sqlite:///db.sqlite3"),
+    SECRET_KEY=(str, "dlkfjhsadlf"),
+    STRIPE_PUBLISHABLE_KEY=(str, ""),
+    STRIPE_SECRET_KEY=(str, ""),
+    STRIPE_API_VERSION=(str, "2022-08-01"),
+    STRIPE_WEBHOOK_SECRET=(str, ""),
+    SENTRY_DSN=(str, ""),
+    REDIS_HOST=(str, "redis"),
     REDIS_PORT=(int, 6379),
     REDIS_DB=(int, 1),
-    REDIS_URL=(str, 'redis://redis:6379/1'),
-    EMAIL_HOST=(str, 'localhost'),
+    REDIS_URL=(str, "redis://redis:6379/1"),
+    EMAIL_HOST=(str, "localhost"),
     EMAIL_PORT=(int, 25),
-    EMAIL_HOST_USER=(str, ''),
-    EMAIL_HOST_PASSWORD=(str, ''),
+    EMAIL_HOST_USER=(str, ""),
+    EMAIL_HOST_PASSWORD=(str, ""),
     EMAIL_USE_TLS=(bool, False),
 )
 
@@ -34,12 +35,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 
 # Application definition
@@ -60,7 +61,7 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ['debug_toolbar']
+    INSTALLED_APPS += ["debug_toolbar"]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -73,7 +74,7 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
 ROOT_URLCONF = "myshop.urls"
 
@@ -99,7 +100,7 @@ WSGI_APPLICATION = "myshop.wsgi.application"
 
 # Database configuration
 DATABASES = {
-    'default': env.db(),
+    "default": env.db(),
 }
 
 
@@ -154,46 +155,46 @@ CART_SESSION_ID = "cart"
 
 # Email configuration
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_HOST = env('EMAIL_HOST', default='localhost')
-EMAIL_PORT = env('EMAIL_PORT', default=25)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=False)
-DEFAULT_FROM_EMAIL = 'admin@myshop.com'
+EMAIL_HOST = env("EMAIL_HOST", default="localhost")
+EMAIL_PORT = env("EMAIL_PORT", default=25)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", default=False)
+DEFAULT_FROM_EMAIL = "admin@myshop.com"
 
 # Redis settings
-REDIS_HOST = env('REDIS_HOST', default='redis')
-REDIS_PORT = env('REDIS_PORT', default=6379)
-REDIS_DB = env('REDIS_DB', default=1)
-REDIS_URL = env('REDIS_URL', default=f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
+REDIS_HOST = env("REDIS_HOST", default="redis")
+REDIS_PORT = env("REDIS_PORT", default=6379)
+REDIS_DB = env("REDIS_DB", default=1)
+REDIS_URL = env("REDIS_URL", default=f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}")
 
 # Celery Configuration
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 # Cache configuration
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 
 # Session configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -202,50 +203,50 @@ SECURE_HSTS_PRELOAD = True
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Performance optimizations
 CONN_MAX_AGE = 60  # Persistent database connections
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
 # Stripe settings
-STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
-STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
-STRIPE_API_VERSION = env('STRIPE_API_VERSION', default='2022-08-01')
-STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
+STRIPE_API_VERSION = env("STRIPE_API_VERSION", default="2022-08-01")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 
 # Logging configuration
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'django.log',
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "django.log",
         },
     },
-    'root': {
-        'handlers': ['console', 'file'],
-        'level': 'INFO',
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "INFO",
     },
 }
 
 # Rate limiting
 RATELIMIT_ENABLE = True
-RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_USE_CACHE = "default"
 
 # Sentry configuration
 if not DEBUG:
     sentry_sdk.init(
-        dsn=env('SENTRY_DSN', default=''),
+        dsn=env("SENTRY_DSN", default=""),
         integrations=[DjangoIntegration()],
         traces_sample_rate=1.0,
-        send_default_pii=True
+        send_default_pii=True,
     )
 
 # Debug toolbar configuration
 if DEBUG:
-    INTERNAL_IPS = ['127.0.0.1']
+    INTERNAL_IPS = ["127.0.0.1"]

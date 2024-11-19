@@ -19,8 +19,10 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import include, path
 
+
 def health_check(request):
     return HttpResponse("OK")
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -28,7 +30,7 @@ urlpatterns = [
     path("orders/", include("orders.urls", namespace="orders")),
     path("payment/", include("payment.urls", namespace="payment")),
     path("coupons/", include("coupons.urls", namespace="coupons")),
-    path("health/", health_check, name='health_check'),
+    path("health/", health_check, name="health_check"),
     path("", include("shop.urls", namespace="shop")),
 ]
 
