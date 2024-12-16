@@ -46,9 +46,25 @@ EOL
     chown -R "$APP_USER:$APP_USER" project/myshop/health/
 fi
 
-# Start server based on environment
+# Start Gunicorn
 if [ "$DJANGO_ENV" = "production" ]; then
-    gunicorn --workers=4 --bind=0.0.0.0:8000 project.myshop.wsgi:application
+    # Production settings
+    gunicorn --workers=4 \
+             --bind=0.0.0.0:8000 \
+             --access-logfile=- \
+             --error-logfile=- \
+             --log-level=info \
+             --worker-class=gthread \
+             --threads=4 \
+             --timeout=30 \
+             project.myshop.wsgi:application
 else
-    python project/manage.py runserver 0.0.0.0:8000
+    # Development settings
+    gunicorn --workers=2 \
+             --bind=0.0.0.0:8000 \
+             --access-logfile=- \
+             --error-logfile=- \
+             --log-level=debug \
+             --reload \
+             project.myshop.wsgi:application
 fi
